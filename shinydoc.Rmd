@@ -1,0 +1,64 @@
+---
+title: "Shiny Application"
+author: "Pratheebha"
+date: "December 25, 2015"
+output: html_document
+runtime: shiny
+---
+
+This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
+
+## Inputs and Outputs
+
+You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
+
+For this project to create a shiny application the Orange dataset was chosen from the r library of datasets. The numericInput takes in the rows as input and can increase or decrease the row to show the Orange data as a table using the renderTable as an output.
+
+```{r, echo=FALSE}
+library(datasets)
+data(Orange)
+numericInput("rows", "Number od Rows:", 10)
+renderTable({
+  head(Orange, input$rows)
+})
+```
+
+ Once the dataset for Orange is loaded we can request a summary report on the data n also the dataset has 35 rows and 3 columns which are displayed using the calls below.
+
+```{r, echo = FALSE}
+summary(Orange)
+dim(Orange)
+```
+
+In the below code snippet we have created some shiny widgets like an input text dropbox to select the choice of Orange tree by the tree number given, a selected tree displays the age and circumference related to that Tree.   
+Also craeted a slider with ageRange as an input and takes in the paraments age as well as circumference and outputs a barplot 
+displaying the change in circumference with age for a selected tree. 
+
+```{r, echo = FALSE}
+
+inputPanel(
+  selectInput("Tree", label = "Tree Number",
+      choices = c(1, 2, 3, 4, 5), selected = 1),
+  
+  sliderInput("ageRange", label = "Age of Orange Tree:",
+              min = 100, max = 1600, value = c(100, 1600),  step = 0.2)
+)
+```
+
+In the code chunk below, uses a widget input and returns a value with a reactive function which updates the value whenever the original widget changes or any selection is made. In this case we are trying to select just one tree at atime and change the slider to see the effects of age over circumference. The input$Tree, input$ageRange are subsets from the data Orange to filter the output for a particular tree selection.  
+
+
+```{r, echo = FALSE}
+library(ggplot2)
+renderPlot({
+newOrange <- subset(Orange, Tree == input$Tree)
+ newOrange <- subset(newOrange, age > input$ageRange[1] & age < input$ageRange[2]) 
+ 
+ ggplot(data = newOrange, aes(x = age, y = circumference)) + geom_bar(stat = "identity", fill = "green", color ="red")     
+  
+})
+```
+
+
+
+
